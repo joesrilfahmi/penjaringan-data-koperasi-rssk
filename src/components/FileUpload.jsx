@@ -3,18 +3,42 @@ import { useRef } from "react";
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
 import { ArrowUpTrayIcon } from "@heroicons/react/24/solid";
-import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 
 function FileUpload({ setProcessedData, setStats, setNameFrequency }) {
   const fileInputRef = useRef();
+
+  const convertExcelDate = (excelDate) => {
+    if (!excelDate) return "";
+
+    try {
+      let date;
+      if (typeof excelDate === "number") {
+        // Convert Excel serial number to JS date
+        date = new Date((excelDate - 25569) * 86400 * 1000);
+      } else {
+        // Try parsing as regular date string
+        date = new Date(excelDate);
+      }
+
+      if (isNaN(date.getTime())) {
+        throw new Error("Invalid date");
+      }
+
+      return formatInTimeZone(date, "Asia/Jakarta", "dd/MM/yyyy HH:mm:ss");
+    } catch (error) {
+      console.error("Error converting date:", error);
+      return excelDate.toString();
+    }
+  };
 
   const processExcelData = (data) => {
     try {
       // Skip header row by starting from index 1
       const processedRows = data.slice(1).map((row, index) => {
-        const timestamp = row[0]; // Column A
-        const voter = row[1]; // Column B
-        const unit = row[2]; // Column C
+        const timestamp = convertExcelDate(row[0]); // Column A
+        const voter = row[1] || ""; // Column B
+        const unit = row[2] || ""; // Column C
         const namesString = row[3] || ""; // Column D
         const names = namesString.split(",").map((name) => name.trim());
 
@@ -32,11 +56,9 @@ function FileUpload({ setProcessedData, setStats, setNameFrequency }) {
 
         return {
           number: index + 1,
-          timestamp: timestamp
-            ? format(new Date(timestamp), "dd/MM/yyyy HH:mm:ss")
-            : "",
-          voter: voter || "",
-          unit: unit || "",
+          timestamp,
+          voter,
+          unit,
           name1,
           name2,
           name3,

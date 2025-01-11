@@ -2,7 +2,6 @@
 import { useState } from "react";
 import FileUpload from "./components/FileUpload";
 import DataTable from "./components/DataTable";
-import StatsContainer from "./components/StatsContainer";
 import NameReport from "./components/NameReport";
 
 function App() {
@@ -26,7 +25,6 @@ function App() {
             setStats={setStats}
             setNameFrequency={setNameFrequency}
           />
-          <StatsContainer stats={stats} />
           <DataTable data={processedData} />
           <NameReport frequency={nameFrequency} />
         </div>
