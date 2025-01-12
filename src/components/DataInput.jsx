@@ -1,3 +1,4 @@
+// src/components/DataInput.jsx
 import { useState } from "react";
 import Swal from "sweetalert2";
 import { TableCellsIcon, TrashIcon } from "@heroicons/react/24/solid";
